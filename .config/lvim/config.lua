@@ -100,6 +100,7 @@ dashboard.section.buttons.val = {
   dash_util.button("e", "  New file", ":ene <BAR> startinsert <CR>"),
   dash_util.button("f", "  Find File", ":Telescope find_files <CR>"),
   dash_util.button("c", "  Configuration", ":e ~/.config/lvim/config.lua <CR>"),
+  dash_util.button("u", "  Update Plugins", ":PackerSync <CR> :PackerCompile <CR>"),
   dash_util.button("q", "  Quit NVIM", ":qa<CR>"),
 }
 
@@ -203,7 +204,9 @@ linters.setup {
 | .__/|_|\__,_|\__, |_|_| |_|___/
 |_|            |___/ ]]
 
-local colorschemes = {
+local my_plugins = {}
+
+my_plugins.colorschemes = {
   {
     'sainnhe/sonokai',
     config = function()
@@ -228,30 +231,17 @@ local colorschemes = {
   }
 }
 
-local telescope_plugins = {}
-
-local core_plugins = {
+my_plugins.core = {
   {
-    "p00f/nvim-ts-rainbow",
-  },
-  {
-    "karb94/neoscroll.nvim",
-    event = "WinScrolled",
-    config = function()
-      require('neoscroll').setup({
-        -- All these keys will be mapped to their corresponding default scrolling animation
-        mappings = { '<C-u>', '<C-d>', '<C-b>', '<C-f>',
-          '<C-y>', '<C-e>', 'zt', 'zz', 'zb' },
-        hide_cursor = true, -- Hide cursor while scrolling
-        stop_eof = true, -- Stop at <EOF> when scrolling downwards
-        use_local_scrolloff = false, -- Use the local scope of scrolloff instead of the global scope
-        respect_scrolloff = false, -- Stop scrolling when the cursor reaches the scrolloff margin of the file
-        cursor_scrolls_alone = true, -- The cursor will keep on scrolling even if the window cannot scroll further
-        easing_function = nil, -- Default easing function
-        pre_hook = nil, -- Function to run before the scrolling animation starts
-        post_hook = nil, -- Function to run after the scrolling animation ends
+    'declancm/cinnamon.nvim',
+    config = function() require('cinnamon').setup({
+        extra_keymaps = true,
+        override_keymaps = true,
+        max_length = 500,
+        scroll_limit = 500,
       })
     end
+
   },
   {
     "ray-x/lsp_signature.nvim",
@@ -291,7 +281,34 @@ local core_plugins = {
   },
 }
 
-local extra_plugins = {
+my_plugins.treesitter = {
+  {
+    "p00f/nvim-ts-rainbow",
+  },
+  {
+    "romgrk/nvim-treesitter-context",
+    config = function()
+      require("treesitter-context").setup {
+        enable = true, -- Enable this plugin (Can be enabled/disabled later via commands)
+        throttle = true, -- Throttles plugin updates (may improve performance)
+        max_lines = 0, -- How many lines the window should span. Values <= 0 mean no limit.
+        patterns = { -- Match patterns for TS nodes. These get wrapped to match at word boundaries.
+          -- For all filetypes
+          -- Note that setting an entry here replaces all other patterns for this entry.
+          -- By setting the 'default' entry below, you can control which nodes you want to
+          -- appear in the context window.
+          default = {
+            'class',
+            'function',
+            'method',
+          },
+        },
+      }
+    end
+  },
+}
+
+my_plugins.misc = {
   {
     "kylechui/nvim-surround",
     tag = "*", -- Use for stability; omit to use `main` branch for the latest features
@@ -343,14 +360,11 @@ local extra_plugins = {
   "folke/todo-comments.nvim",
   requires = "nvim-lua/plenary.nvim",
   config = function()
-    require("todo-comments").setup {
-      -- your configuration comes here
-      -- or leave it empty to use the default settings
-      -- refer to the configuration section below
-    }
+    require("todo-comments").setup {}
   end
 }
 
+-- used in merging all the plugin tables
 local function append_table(a, b)
   local result = a
   for i = 1, #b do
@@ -360,9 +374,10 @@ local function append_table(a, b)
 end
 
 -- Plugins on top of Lunarvim
-local plugins = append_table(core_plugins, colorschemes)
-plugins = append_table(plugins, telescope_plugins)
-plugins = append_table(plugins, extra_plugins)
+local plugins = {}
+for _, plugin_table in pairs(my_plugins) do
+  plugins = append_table(plugins, plugin_table)
+end
 lvim.plugins = plugins
 
 --[[ 
