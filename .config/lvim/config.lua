@@ -1,3 +1,9 @@
+--[[                               _           
+| |   _   _ _ __   __ _ _ ____   _(_)_ __ ___  
+| |  | | | | '_ \ / _` | '__\ \ / / | '_ ` _ \ 
+| |__| |_| | | | | (_| | |   \ V /| | | | | | |
+|_____\__,_|_| |_|\__,_|_|    \_/ |_|_| |_| |_|]]
+
 --[[
 lvim is the global options object
 
@@ -16,10 +22,18 @@ lvim.transparent_window = true
 -- to disable icons and use a minimalist setup, uncomment the following
 -- lvim.use_icons = false
 
--- options
+
+--[[         _   _
+  ___  _ __ | |_(_) ___  _ __  ___
+ / _ \| '_ \| __| |/ _ \| '_ \/ __|
+| (_) | |_) | |_| | (_) | | | \__ \
+ \___/| .__/ \__|_|\___/|_| |_|___/
+      |_| ]]
 vim.opt.foldmethod = "expr" -- folding set to "expr" for treesitter based folding
 vim.opt.foldexpr = "nvim_treesitter#foldexpr()" -- set to
 vim.opt.foldlevel = 3
+
+vim.g.python3_host_prog = "~/.config/lvim/venv/bin/python3"
 --
 -- keymappings [view all the defaults by pressing <leader>Lk]
 --
@@ -113,7 +127,12 @@ lvim.builtin.treesitter.ensure_installed = {
 lvim.builtin.treesitter.ignore_install = { "haskell" }
 lvim.builtin.treesitter.highlight.enable = true
 
--- generic LSP settings
+--[[ 
+ _     ____  ____
+| |   / ___||  _ \
+| |   \___ \| |_) |
+| |___ ___) |  __/
+|_____|____/|_| ]]
 
 -- -- make sure server will always be installed even if the server is in skipped_servers list
 -- lvim.lsp.installer.setup.ensure_installed = {
@@ -187,8 +206,13 @@ lvim.builtin.treesitter.highlight.enable = true
 --     filetypes = { "javascript", "python" },
 --   },
 -- }
+--[[   _             _
+ _ __ | |_   _  __ _(_)_ __  ___
+| '_ \| | | | |/ _` | | '_ \/ __|
+| |_) | | |_| | (_| | | | | \__ \
+| .__/|_|\__,_|\__, |_|_| |_|___/
+|_|            |___/ ]]
 
--- this table is just like lvim.plugins.
 local colorschemes = {
   {
     'sainnhe/sonokai',
@@ -242,6 +266,46 @@ local core_plugins = {
   },
 }
 
+local extra_plugins = {
+  {
+    "echasnovski/mini.map",
+    branch = "stable",
+    config = function()
+      require('mini.map').setup()
+      local map = require('mini.map')
+      map.setup({
+        integrations = {
+          map.gen_integration.builtin_search(),
+          map.gen_integration.diagnostic({
+            error = 'DiagnosticFloatingError',
+            warn  = 'DiagnosticFloatingWarn',
+            info  = 'DiagnosticFloatingInfo',
+            hint  = 'DiagnosticFloatingHint',
+          }),
+        },
+        symbols = {
+          encode = map.gen_encode_symbols.dot('4x2'),
+        },
+        window = {
+          side = 'right',
+          width = 20, -- set to 1 for a pure scrollbar :)
+          winblend = 15,
+          show_integration_count = false,
+        },
+      })
+    end
+  },
+  {
+    "kevinhwang91/rnvimr",
+    cmd = "RnvimrToggle",
+    config = function()
+      vim.g.rnvimr_draw_border = 1
+      vim.g.rnvimr_pick_enable = 1
+      vim.g.rnvimr_bw_enable = 1
+    end,
+  },
+}
+
 local function append_table(a, b)
   local result = a
   for i = 1, #b do
@@ -253,8 +317,14 @@ end
 -- Plugins on top of Lunarvim
 local plugins = append_table(core_plugins, colorschemes)
 plugins = append_table(plugins, telescope_plugins)
+plugins = append_table(plugins, extra_plugins)
 lvim.plugins = plugins
 
+--[[ 
+  __ _ _   _| |_ ___   ___ _ __ ___   __| |___ 
+ / _` | | | | __/ _ \ / __| '_ ` _ \ / _` / __|
+| (_| | |_| | || (_) | (__| | | | | | (_| \__ \
+ \__,_|\__,_|\__\___/ \___|_| |_| |_|\__,_|___/ ]]
 -- Autocommands (https://neovim.io/doc/user/autocmd.html)
 vim.api.nvim_create_autocmd("BufEnter", {
   pattern = { "*.json", "*.jsonc" },
@@ -268,3 +338,32 @@ vim.api.nvim_create_autocmd("FileType", {
     require("nvim-treesitter.highlight").attach(0, "bash")
   end,
 })
+
+lvim.autocommands = {
+  {
+    { "BufEnter", "Filetype" },
+    {
+      desc = "Open mini.map and exclude some filetypes",
+      pattern = { "*" },
+      callback = function()
+        local exclude_ft = {
+          "qf",
+          "NvimTree",
+          "toggleterm",
+          "TelescopePrompt",
+          "alpha",
+          "netrw",
+          "Rnvimr"
+        }
+
+        local map = require('mini.map')
+        if vim.tbl_contains(exclude_ft, vim.o.filetype) then
+          vim.b.minimap_disable = true
+          map.close()
+        elseif vim.o.buftype == "" then
+          map.open()
+        end
+      end,
+    },
+  },
+}
