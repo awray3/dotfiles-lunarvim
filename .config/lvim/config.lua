@@ -22,7 +22,6 @@ lvim.transparent_window = true
 -- to disable icons and use a minimalist setup, uncomment the following
 -- lvim.use_icons = false
 
-
 --[[         _   _
   ___  _ __ | |_(_) ___  _ __  ___
  / _ \| '_ \| __| |/ _ \| '_ \/ __|
@@ -34,6 +33,18 @@ vim.opt.foldexpr = "nvim_treesitter#foldexpr()" -- set to
 vim.opt.foldlevel = 3
 
 vim.g.python3_host_prog = "~/.config/lvim/venv/bin/python3"
+
+function _G.put(...)
+  local objects = {}
+  for i = 1, select('#', ...) do
+    local v = select(i, ...)
+    table.insert(objects, vim.inspect(v))
+  end
+
+  print(table.concat(objects, '\n'))
+  return ...
+end
+
 --
 -- keymappings [view all the defaults by pressing <leader>Lk]
 --
@@ -86,7 +97,7 @@ local dashboard = alpha.dashboard
 local dash_util = require("alpha.themes.dashboard")
 
 alpha.active = true
-alpha.mode = 'dashboard'
+alpha.mode = "dashboard"
 
 dashboard.section.header.val = {
   [[                               __                ]],
@@ -100,10 +111,9 @@ dashboard.section.buttons.val = {
   dash_util.button("e", "  New file", ":ene <BAR> startinsert <CR>"),
   dash_util.button("f", "  Find File", ":Telescope find_files <CR>"),
   dash_util.button("c", "  Configuration", ":e ~/.config/lvim/config.lua <CR>"),
-  dash_util.button("u", "  Update Plugins", ":PackerSync <CR> :PackerCompile <CR>"),
+  dash_util.button("u", "  Update Plugins", ":PackerSync <CR> :PackerCompile <CR>"),
   dash_util.button("q", "  Quit NVIM", ":qa<CR>"),
 }
-
 
 lvim.builtin.terminal.active = true
 lvim.builtin.nvimtree.setup.view.side = "left"
@@ -122,7 +132,7 @@ lvim.builtin.treesitter.ensure_installed = {
   "yaml",
   "help",
   "markdown",
-  "julia"
+  "julia",
 }
 
 lvim.builtin.treesitter.ignore_install = { "haskell" }
@@ -138,7 +148,7 @@ lvim.builtin.treesitter.highlight.enable = true
 -- -- make sure server will always be installed even if the server is in skipped_servers list
 lvim.lsp.installer.setup.ensure_installed = {
   "sumneko_lua",
-  "pyright"
+  "pyright",
 }
 
 -- ---@usage disable automatic installation of servers
@@ -161,8 +171,8 @@ lvim.lsp.installer.setup.automatic_installation = false
 -- end
 
 -- -- set a formatter, this will override the language server formatting capabilities (if it exists)
-local formatters = require "lvim.lsp.null-ls.formatters"
-formatters.setup {
+local formatters = require("lvim.lsp.null-ls.formatters")
+formatters.setup({
   { command = "black", filetypes = { "python" } },
   { command = "isort", filetypes = { "python" } },
   {
@@ -174,13 +184,13 @@ formatters.setup {
     ---@usage specify which filetypes to enable. By default a providers will attach to all the filetypes it supports.
     filetypes = { "markdown", "quarto" },
   },
-}
+})
 
 -- -- set additional linters
-local linters = require "lvim.lsp.null-ls.linters"
-linters.setup {
+local linters = require("lvim.lsp.null-ls.linters")
+linters.setup({
   { command = "flake8", filetypes = { "python" } },
-}
+})
 
 --   {
 --     -- each linter accepts a list of options identical to https://github.com/jose-elias-alvarez/null-ls.nvim/blob/main/doc/BUILTINS.md#Configuration
@@ -196,7 +206,6 @@ linters.setup {
 --   },
 -- }
 
-
 --[[   _             _
  _ __ | |_   _  __ _(_)_ __  ___
 | '_ \| | | | |/ _` | | '_ \/ __|
@@ -208,45 +217,44 @@ local my_plugins = {}
 
 my_plugins.colorschemes = {
   {
-    'sainnhe/sonokai',
+    "sainnhe/sonokai",
     config = function()
       vim.cmd([[
         let g:sonokai_better_performance = 1
         " let g:sonokai_style = 'maia'
         let g:sonokai_style = 'espresso'
       ]])
-    end
+    end,
   },
   {
-    'sainnhe/everforest',
+    "sainnhe/everforest",
     config = function()
-      vim.cmd(
-        [[
+      vim.cmd([[
           let g:everforest_transparent_background = 1
           let g:everforest_dim_inactive_windows = 1
           
-        ]]
-      )
-    end
-  }
+        ]])
+    end,
+  },
 }
 
 my_plugins.core = {
   {
-    'declancm/cinnamon.nvim',
-    config = function() require('cinnamon').setup({
+    "declancm/cinnamon.nvim",
+    config = function()
+      require("cinnamon").setup({
         extra_keymaps = true,
         override_keymaps = true,
         max_length = 500,
         scroll_limit = 500,
       })
-    end
-
+    end,
   },
   {
     "ray-x/lsp_signature.nvim",
     event = "BufRead",
-    config = function() require "lsp_signature".on_attach()
+    config = function()
+      require("lsp_signature").on_attach()
     end,
   },
   {
@@ -265,10 +273,10 @@ my_plugins.core = {
     config = function()
       require("better_escape").setup({
         keys = function()
-          return vim.api.nvim_win_get_cursor(0)[2] > 1 and '<esc>l' or '<esc>'
+          return vim.api.nvim_win_get_cursor(0)[2] > 1 and "<esc>l" or "<esc>"
         end,
       })
-    end
+    end,
   },
   {
     "phaazon/hop.nvim",
@@ -288,7 +296,7 @@ my_plugins.treesitter = {
   {
     "romgrk/nvim-treesitter-context",
     config = function()
-      require("treesitter-context").setup {
+      require("treesitter-context").setup({
         enable = true, -- Enable this plugin (Can be enabled/disabled later via commands)
         throttle = true, -- Throttles plugin updates (may improve performance)
         max_lines = 0, -- How many lines the window should span. Values <= 0 mean no limit.
@@ -298,13 +306,13 @@ my_plugins.treesitter = {
           -- By setting the 'default' entry below, you can control which nodes you want to
           -- appear in the context window.
           default = {
-            'class',
-            'function',
-            'method',
+            "class",
+            "function",
+            "method",
           },
         },
-      }
-    end
+      })
+    end,
   },
 }
 
@@ -316,42 +324,42 @@ my_plugins.misc = {
       require("nvim-surround").setup({
         -- Configuration here, or leave empty to use defaults
       })
-    end
+    end,
   },
   {
     "echasnovski/mini.map",
     branch = "stable",
     config = function()
-      require('mini.map').setup()
-      local map = require('mini.map')
+      require("mini.map").setup()
+      local map = require("mini.map")
       map.setup({
         integrations = {
           map.gen_integration.builtin_search(),
           map.gen_integration.diagnostic({
-            error = 'DiagnosticFloatingError',
-            warn  = 'DiagnosticFloatingWarn',
-            info  = 'DiagnosticFloatingInfo',
-            hint  = 'DiagnosticFloatingHint',
+            error = "DiagnosticFloatingError",
+            warn = "DiagnosticFloatingWarn",
+            info = "DiagnosticFloatingInfo",
+            hint = "DiagnosticFloatingHint",
           }),
         },
         symbols = {
-          encode = map.gen_encode_symbols.dot('4x2'),
+          encode = map.gen_encode_symbols.dot("4x2"),
         },
         window = {
-          side = 'right',
+          side = "right",
           width = 20, -- set to 1 for a pure scrollbar :)
           winblend = 15,
           show_integration_count = false,
         },
       })
-    end
+    end,
   },
   {
     "pwntester/octo.nvim",
     requires = {
-      'nvim-lua/plenary.nvim',
-      'nvim-telescope/telescope.nvim',
-      'kyazdani42/nvim-web-devicons',
+      "nvim-lua/plenary.nvim",
+      "nvim-telescope/telescope.nvim",
+      "kyazdani42/nvim-web-devicons",
     },
     config = function()
       require("octo").setup()
@@ -360,8 +368,8 @@ my_plugins.misc = {
   "folke/todo-comments.nvim",
   requires = "nvim-lua/plenary.nvim",
   config = function()
-    require("todo-comments").setup {}
-  end
+    require("todo-comments").setup({})
+  end,
 }
 
 -- used in merging all the plugin tables
@@ -375,9 +383,10 @@ end
 
 -- Plugins on top of Lunarvim
 local plugins = {}
-for _, plugin_table in pairs(my_plugins) do
+for name, plugin_table in pairs(my_plugins) do
   plugins = append_table(plugins, plugin_table)
 end
+
 lvim.plugins = plugins
 
 --[[ 
@@ -413,10 +422,9 @@ lvim.autocommands = {
           "TelescopePrompt",
           "alpha",
           "netrw",
-          "Rnvimr"
         }
 
-        local map = require('mini.map')
+        local map = require("mini.map")
         if vim.tbl_contains(exclude_ft, vim.o.filetype) then
           vim.b.minimap_disable = true
           map.close()
