@@ -135,33 +135,19 @@ lvim.builtin.treesitter.highlight.enable = true
 |_____|____/|_| ]]
 
 -- -- make sure server will always be installed even if the server is in skipped_servers list
--- lvim.lsp.installer.setup.ensure_installed = {
---     "sumneko_lua",
---     "jsonls",
--- }
--- -- change UI setting of `LspInstallInfo`
--- -- see <https://github.com/williamboman/nvim-lsp-installer#default-configuration>
--- lvim.lsp.installer.setup.ui.check_outdated_servers_on_open = false
--- lvim.lsp.installer.setup.ui.border = "rounded"
--- lvim.lsp.installer.setup.ui.keymaps = {
---     uninstall_server = "d",
---     toggle_server_expand = "o",
--- }
+lvim.lsp.installer.setup.ensure_installed = {
+  "sumneko_lua",
+  "pyright"
+}
 
 -- ---@usage disable automatic installation of servers
--- lvim.lsp.installer.setup.automatic_installation = false
+lvim.lsp.installer.setup.automatic_installation = false
 
 -- ---configure a server manually. !!Requires `:LvimCacheReset` to take effect!!
 -- ---see the full default list `:lua print(vim.inspect(lvim.lsp.automatic_configuration.skipped_servers))`
 -- vim.list_extend(lvim.lsp.automatic_configuration.skipped_servers, { "pyright" })
 -- local opts = {} -- check the lspconfig documentation for a list of all possible options
 -- require("lvim.lsp.manager").setup("pyright", opts)
-
--- ---remove a server from the skipped list, e.g. eslint, or emmet_ls. !!Requires `:LvimCacheReset` to take effect!!
--- ---`:LvimInfo` lists which server(s) are skipped for the current filetype
--- lvim.lsp.automatic_configuration.skipped_servers = vim.tbl_filter(function(server)
---   return server ~= "emmet_ls"
--- end, lvim.lsp.automatic_configuration.skipped_servers)
 
 -- -- you can set a custom on_attach function that will be used for all the language servers
 -- -- See <https://github.com/neovim/nvim-lspconfig#keybindings-and-completion>
@@ -174,25 +160,27 @@ lvim.builtin.treesitter.highlight.enable = true
 -- end
 
 -- -- set a formatter, this will override the language server formatting capabilities (if it exists)
--- local formatters = require "lvim.lsp.null-ls.formatters"
--- formatters.setup {
---   { command = "black", filetypes = { "python" } },
---   { command = "isort", filetypes = { "python" } },
---   {
---     -- each formatter accepts a list of options identical to https://github.com/jose-elias-alvarez/null-ls.nvim/blob/main/doc/BUILTINS.md#Configuration
---     command = "prettier",
---     ---@usage arguments to pass to the formatter
---     -- these cannot contain whitespaces, options such as `--line-width 80` become either `{'--line-width', '80'}` or `{'--line-width=80'}`
---     extra_args = { "--print-with", "100" },
---     ---@usage specify which filetypes to enable. By default a providers will attach to all the filetypes it supports.
---     filetypes = { "typescript", "typescriptreact" },
---   },
--- }
+local formatters = require "lvim.lsp.null-ls.formatters"
+formatters.setup {
+  { command = "black", filetypes = { "python" } },
+  { command = "isort", filetypes = { "python" } },
+  {
+    -- each formatter accepts a list of options identical to https://github.com/jose-elias-alvarez/null-ls.nvim/blob/main/doc/BUILTINS.md#Configuration
+    command = "prettier",
+    ---@usage arguments to pass to the formatter
+    -- these cannot contain whitespaces, options such as `--line-width 80` become either `{'--line-width', '80'}` or `{'--line-width=80'}`
+    extra_args = { "--print-with", "100" },
+    ---@usage specify which filetypes to enable. By default a providers will attach to all the filetypes it supports.
+    filetypes = { "markdown", "quarto" },
+  },
+}
 
 -- -- set additional linters
--- local linters = require "lvim.lsp.null-ls.linters"
--- linters.setup {
---   { command = "flake8", filetypes = { "python" } },
+local linters = require "lvim.lsp.null-ls.linters"
+linters.setup {
+  { command = "flake8", filetypes = { "python" } },
+}
+
 --   {
 --     -- each linter accepts a list of options identical to https://github.com/jose-elias-alvarez/null-ls.nvim/blob/main/doc/BUILTINS.md#Configuration
 --     command = "shellcheck",
@@ -206,6 +194,8 @@ lvim.builtin.treesitter.highlight.enable = true
 --     filetypes = { "javascript", "python" },
 --   },
 -- }
+
+
 --[[   _             _
  _ __ | |_   _  __ _(_)_ __  ___
 | '_ \| | | | |/ _` | | '_ \/ __|
@@ -242,8 +232,43 @@ local telescope_plugins = {}
 
 local core_plugins = {
   {
+    "p00f/nvim-ts-rainbow",
+  },
+  {
+    "karb94/neoscroll.nvim",
+    event = "WinScrolled",
+    config = function()
+      require('neoscroll').setup({
+        -- All these keys will be mapped to their corresponding default scrolling animation
+        mappings = { '<C-u>', '<C-d>', '<C-b>', '<C-f>',
+          '<C-y>', '<C-e>', 'zt', 'zz', 'zb' },
+        hide_cursor = true, -- Hide cursor while scrolling
+        stop_eof = true, -- Stop at <EOF> when scrolling downwards
+        use_local_scrolloff = false, -- Use the local scope of scrolloff instead of the global scope
+        respect_scrolloff = false, -- Stop scrolling when the cursor reaches the scrolloff margin of the file
+        cursor_scrolls_alone = true, -- The cursor will keep on scrolling even if the window cannot scroll further
+        easing_function = nil, -- Default easing function
+        pre_hook = nil, -- Function to run before the scrolling animation starts
+        post_hook = nil, -- Function to run after the scrolling animation ends
+      })
+    end
+  },
+  {
+    "ray-x/lsp_signature.nvim",
+    event = "BufRead",
+    config = function() require "lsp_signature".on_attach()
+    end,
+  },
+  {
     "folke/trouble.nvim",
     cmd = "TroubleToggle",
+  },
+  {
+    "windwp/nvim-spectre",
+    event = "BufRead",
+    config = function()
+      require("spectre").setup()
+    end,
   },
   {
     "max397574/better-escape.nvim",
@@ -267,6 +292,15 @@ local core_plugins = {
 }
 
 local extra_plugins = {
+  {
+    "kylechui/nvim-surround",
+    tag = "*", -- Use for stability; omit to use `main` branch for the latest features
+    config = function()
+      require("nvim-surround").setup({
+        -- Configuration here, or leave empty to use defaults
+      })
+    end
+  },
   {
     "echasnovski/mini.map",
     branch = "stable",
@@ -296,14 +330,25 @@ local extra_plugins = {
     end
   },
   {
-    "kevinhwang91/rnvimr",
-    cmd = "RnvimrToggle",
+    "pwntester/octo.nvim",
+    requires = {
+      'nvim-lua/plenary.nvim',
+      'nvim-telescope/telescope.nvim',
+      'kyazdani42/nvim-web-devicons',
+    },
     config = function()
-      vim.g.rnvimr_draw_border = 1
-      vim.g.rnvimr_pick_enable = 1
-      vim.g.rnvimr_bw_enable = 1
+      require("octo").setup()
     end,
   },
+  "folke/todo-comments.nvim",
+  requires = "nvim-lua/plenary.nvim",
+  config = function()
+    require("todo-comments").setup {
+      -- your configuration comes here
+      -- or leave it empty to use the default settings
+      -- refer to the configuration section below
+    }
+  end
 }
 
 local function append_table(a, b)
