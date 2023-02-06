@@ -16,12 +16,19 @@ lvim.transparent_window = true
 -- to disable icons and use a minimalist setup, uncomment the following
 -- lvim.use_icons = false
 
+-- options
+vim.opt.foldmethod = "expr" -- folding set to "expr" for treesitter based folding
+vim.opt.foldexpr = "nvim_treesitter#foldexpr()" -- set to
+vim.opt.foldlevel = 3
+--
 -- keymappings [view all the defaults by pressing <leader>Lk]
+--
 lvim.leader = "space"
 -- add your own keymapping
 lvim.keys.normal_mode["<C-s>"] = ":w<cr>"
--- lvim.keys.normal_mode["<S-l>"] = ":BufferLineCycleNext<CR>"
--- lvim.keys.normal_mode["<S-h>"] = ":BufferLineCyclePrev<CR>"
+lvim.keys.normal_mode[","] = "za"
+lvim.keys.normal_mode["<S-l>"] = ":BufferLineCycleNext<CR>"
+lvim.keys.normal_mode["<S-h>"] = ":BufferLineCyclePrev<CR>"
 -- unmap a default keymapping
 -- vim.keymap.del("n", "<C-Up>")
 -- override a default keymapping
@@ -45,10 +52,6 @@ lvim.keys.normal_mode["<C-s>"] = ":w<cr>"
 --   },
 -- }
 
--- Change theme settings
--- lvim.builtin.theme.options.dim_inactive = true
--- lvim.builtin.theme.options.style = "storm"
-
 -- Use which-key to add extra bindings with the leader-key prefix
 -- lvim.builtin.which_key.mappings["P"] = { "<cmd>Telescope projects<CR>", "Projects" }
 lvim.builtin.which_key.mappings["t"] = {
@@ -63,8 +66,30 @@ lvim.builtin.which_key.mappings["t"] = {
 
 -- TODO: User Config for predefined plugins
 -- After changing plugin config exit and reopen LunarVim, Run :PackerInstall :PackerCompile
-lvim.builtin.alpha.active = true
-lvim.builtin.alpha.mode = "dashboard"
+-- dashboard configuration
+local alpha = lvim.builtin.alpha
+local dashboard = alpha.dashboard
+local dash_util = require("alpha.themes.dashboard")
+
+alpha.active = true
+alpha.mode = 'dashboard'
+
+dashboard.section.header.val = {
+  [[                               __                ]],
+  [[  ___     ___    ___   __  __ /\_\    ___ ___    ]],
+  [[ / _ `\  / __`\ / __`\/\ \/\ \\/\ \  / __` __`\  ]],
+  [[/\ \/\ \/\  __//\ \_\ \ \ \_/ |\ \ \/\ \/\ \/\ \ ]],
+  [[\ \_\ \_\ \____\ \____/\ \___/  \ \_\ \_\ \_\ \_\]],
+  [[ \/_/\/_/\/____/\/___/  \/__/    \/_/\/_/\/_/\/_/]],
+}
+dashboard.section.buttons.val = {
+  dash_util.button("e", "  New file", ":ene <BAR> startinsert <CR>"),
+  dash_util.button("f", "  Find File", ":Telescope find_files <CR>"),
+  dash_util.button("c", "  Configuration", ":e ~/.config/lvim/config.lua <CR>"),
+  dash_util.button("q", "  Quit NVIM", ":qa<CR>"),
+}
+
+
 lvim.builtin.terminal.active = true
 lvim.builtin.nvimtree.setup.view.side = "left"
 lvim.builtin.nvimtree.setup.renderer.icons.show.git = true
@@ -80,6 +105,7 @@ lvim.builtin.treesitter.ensure_installed = {
   "rust",
   "java",
   "yaml",
+  "help",
   "markdown",
   "julia"
 }
@@ -188,6 +214,8 @@ local colorschemes = {
   }
 }
 
+local telescope_plugins = {}
+
 local core_plugins = {
   {
     "folke/trouble.nvim",
@@ -203,8 +231,16 @@ local core_plugins = {
       })
     end
   },
+  {
+    "phaazon/hop.nvim",
+    event = "BufRead",
+    config = function()
+      require("hop").setup()
+      vim.api.nvim_set_keymap("n", "s", ":HopChar2<cr>", { silent = true })
+      vim.api.nvim_set_keymap("n", "S", ":HopWord<cr>", { silent = true })
+    end,
+  },
 }
-
 
 local function append_table(a, b)
   local result = a
@@ -216,6 +252,7 @@ end
 
 -- Plugins on top of Lunarvim
 local plugins = append_table(core_plugins, colorschemes)
+plugins = append_table(plugins, telescope_plugins)
 lvim.plugins = plugins
 
 -- Autocommands (https://neovim.io/doc/user/autocmd.html)
