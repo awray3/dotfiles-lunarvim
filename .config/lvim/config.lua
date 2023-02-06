@@ -11,7 +11,8 @@ an executable
 -- general
 lvim.log.level = "warn"
 lvim.format_on_save.enabled = true
-lvim.colorscheme = "lunar"
+lvim.colorscheme = "everforest"
+lvim.transparent_window = true
 -- to disable icons and use a minimalist setup, uncomment the following
 -- lvim.use_icons = false
 
@@ -50,15 +51,15 @@ lvim.keys.normal_mode["<C-s>"] = ":w<cr>"
 
 -- Use which-key to add extra bindings with the leader-key prefix
 -- lvim.builtin.which_key.mappings["P"] = { "<cmd>Telescope projects<CR>", "Projects" }
--- lvim.builtin.which_key.mappings["t"] = {
---   name = "+Trouble",
---   r = { "<cmd>Trouble lsp_references<cr>", "References" },
---   f = { "<cmd>Trouble lsp_definitions<cr>", "Definitions" },
---   d = { "<cmd>Trouble document_diagnostics<cr>", "Diagnostics" },
---   q = { "<cmd>Trouble quickfix<cr>", "QuickFix" },
---   l = { "<cmd>Trouble loclist<cr>", "LocationList" },
---   w = { "<cmd>Trouble workspace_diagnostics<cr>", "Workspace Diagnostics" },
--- }
+lvim.builtin.which_key.mappings["t"] = {
+  name = "+Trouble",
+  r = { "<cmd>Trouble lsp_references<cr>", "References" },
+  f = { "<cmd>Trouble lsp_definitions<cr>", "Definitions" },
+  d = { "<cmd>Trouble document_diagnostics<cr>", "Diagnostics" },
+  q = { "<cmd>Trouble quickfix<cr>", "QuickFix" },
+  l = { "<cmd>Trouble loclist<cr>", "LocationList" },
+  w = { "<cmd>Trouble workspace_diagnostics<cr>", "Workspace Diagnostics" },
+}
 
 -- TODO: User Config for predefined plugins
 -- After changing plugin config exit and reopen LunarVim, Run :PackerInstall :PackerCompile
@@ -161,8 +162,33 @@ lvim.builtin.treesitter.highlight.enable = true
 --   },
 -- }
 
--- Additional Plugins
-lvim.plugins = {
+-- this table is just like lvim.plugins.
+local colorschemes = {
+  {
+    'sainnhe/sonokai',
+    config = function()
+      vim.cmd([[
+        let g:sonokai_better_performance = 1
+        " let g:sonokai_style = 'maia'
+        let g:sonokai_style = 'espresso'
+      ]])
+    end
+  },
+  {
+    'sainnhe/everforest',
+    config = function()
+      vim.cmd(
+        [[
+          let g:everforest_transparent_background = 1
+          let g:everforest_dim_inactive_windows = 1
+          
+        ]]
+      )
+    end
+  }
+}
+
+local core_plugins = {
   {
     "folke/trouble.nvim",
     cmd = "TroubleToggle",
@@ -176,19 +202,32 @@ lvim.plugins = {
         end,
       })
     end
-  }
+  },
 }
 
+
+local function append_table(a, b)
+  local result = a
+  for i = 1, #b do
+    table.insert(result, b[i])
+  end
+  return result
+end
+
+-- Plugins on top of Lunarvim
+local plugins = append_table(core_plugins, colorschemes)
+lvim.plugins = plugins
+
 -- Autocommands (https://neovim.io/doc/user/autocmd.html)
--- vim.api.nvim_create_autocmd("BufEnter", {
---   pattern = { "*.json", "*.jsonc" },
---   -- enable wrap mode for json files only
---   command = "setlocal wrap",
--- })
--- vim.api.nvim_create_autocmd("FileType", {
---   pattern = "zsh",
---   callback = function()
---     -- let treesitter use bash highlight for zsh files as well
---     require("nvim-treesitter.highlight").attach(0, "bash")
---   end,
--- })
+vim.api.nvim_create_autocmd("BufEnter", {
+  pattern = { "*.json", "*.jsonc" },
+  -- enable wrap mode for json files only
+  command = "setlocal wrap",
+})
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = "zsh",
+  callback = function()
+    -- let treesitter use bash highlight for zsh files as well
+    require("nvim-treesitter.highlight").attach(0, "bash")
+  end,
+})
