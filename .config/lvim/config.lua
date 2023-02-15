@@ -120,12 +120,11 @@ lvim.builtin.treesitter.ensure_installed = {
   "rust",
   "java",
   "yaml",
-  "help",
   "markdown",
   "julia"
 }
 
-lvim.builtin.treesitter.ignore_install = { "haskell" }
+lvim.builtin.treesitter.ignore_install = { "haskell", "help" }
 lvim.builtin.treesitter.highlight.enable = true
 
 --[[ 
@@ -204,6 +203,7 @@ linters.setup {
 | .__/|_|\__,_|\__, |_|_| |_|___/
 |_|            |___/ ]]
 
+local programming_ftypes = { "bash", "c", "css", "go", "javascript", "json", "lua", "python", "rust", "tsx", "typescript" }
 local my_plugins = {}
 
 my_plugins.colorschemes = {
@@ -228,7 +228,7 @@ my_plugins.colorschemes = {
         ]]
       )
     end
-  }
+  },
 }
 
 my_plugins.core = {
@@ -281,32 +281,34 @@ my_plugins.core = {
   },
 }
 
-my_plugins.treesitter = {
-  {
-    "p00f/nvim-ts-rainbow",
-  },
-  {
-    "romgrk/nvim-treesitter-context",
-    config = function()
-      require("treesitter-context").setup {
-        enable = true, -- Enable this plugin (Can be enabled/disabled later via commands)
-        throttle = true, -- Throttles plugin updates (may improve performance)
-        max_lines = 0, -- How many lines the window should span. Values <= 0 mean no limit.
-        patterns = { -- Match patterns for TS nodes. These get wrapped to match at word boundaries.
-          -- For all filetypes
-          -- Note that setting an entry here replaces all other patterns for this entry.
-          -- By setting the 'default' entry below, you can control which nodes you want to
-          -- appear in the context window.
-          default = {
-            'class',
-            'function',
-            'method',
-          },
-        },
-      }
-    end
-  },
-}
+-- my_plugins.treesitter = {
+--   {
+--     "p00f/nvim-ts-rainbow",
+--     ft = programming_ftypes
+--   },
+--   {
+--     "romgrk/nvim-treesitter-context",
+--     ft = programming_ftypes,
+--     config = function()
+--       require("treesitter-context").setup {
+--         enable = true, -- Enable this plugin (Can be enabled/disabled later via commands)
+--         throttle = true, -- Throttles plugin updates (may improve performance)
+--         max_lines = 0, -- How many lines the window should span. Values <= 0 mean no limit.
+--         patterns = { -- Match patterns for TS nodes. These get wrapped to match at word boundaries.
+--           -- For all filetypes
+--           -- Note that setting an entry here replaces all other patterns for this entry.
+--           -- By setting the 'default' entry below, you can control which nodes you want to
+--           -- appear in the context window.
+--           default = {
+--             'class',
+--             'function',
+--             'method',
+--           },
+--         },
+--       }
+--     end
+--   },
+-- }
 
 my_plugins.misc = {
   {
@@ -364,6 +366,30 @@ my_plugins.misc = {
   end
 }
 
+my_plugins.assistants = {
+  {
+    'Exafunction/codeium.vim',
+    config = function()
+      vim.keymap.set('i', '<C-g>', function() return vim.fn['codeium#Accept']() end, { expr = true })
+      vim.keymap.set('i', '<c-;>', function() return vim.fn['codeium#CycleCompletions'](1) end, { expr = true })
+      vim.keymap.set('i', '<c-,>', function() return vim.fn['codeium#CycleCompletions'](-1) end, { expr = true })
+      vim.keymap.set('i', '<c-x>', function() return vim.fn['codeium#Clear']() end, { expr = true })
+    end
+  }
+}
+
+my_plugins.notes = {
+  {
+    'phaazon/mind.nvim',
+    branch = 'v2.2',
+    requires = { 'nvim-lua/plenary.nvim' },
+    config = function()
+      require 'mind'.setup()
+    end
+  }
+}
+
+
 -- used in merging all the plugin tables
 local function append_table(a, b)
   local result = a
@@ -413,7 +439,8 @@ lvim.autocommands = {
           "TelescopePrompt",
           "alpha",
           "netrw",
-          "Rnvimr"
+          "Rnvimr",
+          "help"
         }
 
         local map = require('mini.map')
