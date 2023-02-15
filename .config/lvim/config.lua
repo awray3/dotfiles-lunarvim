@@ -130,12 +130,11 @@ lvim.builtin.treesitter.ensure_installed = {
   "rust",
   "java",
   "yaml",
-  "help",
   "markdown",
   "julia",
 }
 
-lvim.builtin.treesitter.ignore_install = { "haskell" }
+lvim.builtin.treesitter.ignore_install = { "haskell", "help" }
 lvim.builtin.treesitter.highlight.enable = true
 
 --[[ 
@@ -213,6 +212,7 @@ linters.setup({
 | .__/|_|\__,_|\__, |_|_| |_|___/
 |_|            |___/ ]]
 
+local programming_ftypes = { "bash", "c", "css", "go", "javascript", "json", "lua", "python", "rust", "tsx", "typescript" }
 local my_plugins = {}
 
 my_plugins.colorschemes = {
@@ -371,6 +371,30 @@ my_plugins.misc = {
     require("todo-comments").setup({})
   end,
 }
+
+my_plugins.assistants = {
+  {
+    'Exafunction/codeium.vim',
+    config = function()
+      vim.keymap.set('i', '<C-g>', function() return vim.fn['codeium#Accept']() end, { expr = true })
+      vim.keymap.set('i', '<c-;>', function() return vim.fn['codeium#CycleCompletions'](1) end, { expr = true })
+      vim.keymap.set('i', '<c-,>', function() return vim.fn['codeium#CycleCompletions'](-1) end, { expr = true })
+      vim.keymap.set('i', '<c-x>', function() return vim.fn['codeium#Clear']() end, { expr = true })
+    end
+  }
+}
+
+my_plugins.notes = {
+  {
+    'phaazon/mind.nvim',
+    branch = 'v2.2',
+    requires = { 'nvim-lua/plenary.nvim' },
+    config = function()
+      require 'mind'.setup()
+    end
+  }
+}
+
 
 -- used in merging all the plugin tables
 local function append_table(a, b)
