@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+
+[tool.pip]
+
+[tool.poetry]
+name="Neovim"
+version="0.3.2"
+authors = ["Andrew Wray"]
+description = ""
+
+[tool.poetry.dependencies]
+python = "^3.8"
+poetry = "^1.0"
+
+[tool.pynvim]
