@@ -1,9 +1,8 @@
---[[                               _           
-| |   _   _ _ __   __ _ _ ____   _(_)_ __ ___  
-| |  | | | | '_ \ / _` | '__\ \ / / | '_ ` _ \ 
+--[[                               _
+| |   _   _ _ __   __ _ _ ____   _(_)_ __ ___
+| |  | | | | '_ \ / _` | '__\ \ / / | '_ ` _ \
 | |__| |_| | | | | (_| | |   \ V /| | | | | | |
 |_____\__,_|_| |_|\__,_|_|    \_/ |_|_| |_| |_|]]
-
 --[[
 lvim is the global options object
 
@@ -28,7 +27,7 @@ lvim.transparent_window = true
 | (_) | |_) | |_| | (_) | | | \__ \
  \___/| .__/ \__|_|\___/|_| |_|___/
       |_| ]]
-vim.opt.foldmethod = "expr" -- folding set to "expr" for treesitter based folding
+vim.opt.foldmethod = "expr"                     -- folding set to "expr" for treesitter based folding
 vim.opt.foldexpr = "nvim_treesitter#foldexpr()" -- set to
 vim.opt.foldlevel = 3
 
@@ -111,7 +110,7 @@ dashboard.section.buttons.val = {
   dash_util.button("e", "  New file", ":ene <BAR> startinsert <CR>"),
   dash_util.button("f", "  Find File", ":Telescope find_files <CR>"),
   dash_util.button("c", "  Configuration", ":e ~/.config/lvim/config.lua <CR>"),
-  dash_util.button("u", "  Update Plugins", ":PackerSync <CR> :PackerCompile <CR>"),
+  dash_util.button("l", "  Lazy", ":Lazy <CR>"),
   dash_util.button("q", "  Quit NVIM", ":qa<CR>"),
 }
 
@@ -137,16 +136,15 @@ lvim.builtin.treesitter.ensure_installed = {
 lvim.builtin.treesitter.ignore_install = { "haskell", "help" }
 lvim.builtin.treesitter.highlight.enable = true
 
---[[ 
+--[[
  _     ____  ____
 | |   / ___||  _ \
 | |   \___ \| |_) |
 | |___ ___) |  __/
 |_____|____/|_| ]]
-
 -- -- make sure server will always be installed even if the server is in skipped_servers list
 lvim.lsp.installer.setup.ensure_installed = {
-  "sumneko_lua",
+  "lua_ls",
   "pyright",
 }
 
@@ -211,7 +209,6 @@ linters.setup({
 | |_) | | |_| | (_| | | | | \__ \
 | .__/|_|\__,_|\__, |_|_| |_|___/
 |_|            |___/ ]]
-
 local programming_ftypes = { "bash", "c", "css", "go", "javascript", "json", "lua", "python", "rust", "tsx", "typescript" }
 local my_plugins = {}
 
@@ -232,7 +229,7 @@ my_plugins.colorschemes = {
       vim.cmd([[
           let g:everforest_transparent_background = 1
           let g:everforest_dim_inactive_windows = 1
-          
+
         ]])
     end,
   },
@@ -249,6 +246,9 @@ my_plugins.core = {
         scroll_limit = 500,
       })
     end,
+  },
+  {
+    'nvim-tree/nvim-web-devicons'
   },
   {
     "ray-x/lsp_signature.nvim",
@@ -297,10 +297,11 @@ my_plugins.treesitter = {
     "romgrk/nvim-treesitter-context",
     config = function()
       require("treesitter-context").setup({
-        enable = true, -- Enable this plugin (Can be enabled/disabled later via commands)
+        enable = true,   -- Enable this plugin (Can be enabled/disabled later via commands)
         throttle = true, -- Throttles plugin updates (may improve performance)
-        max_lines = 0, -- How many lines the window should span. Values <= 0 mean no limit.
-        patterns = { -- Match patterns for TS nodes. These get wrapped to match at word boundaries.
+        max_lines = 0,   -- How many lines the window should span. Values <= 0 mean no limit.
+        patterns = {
+          -- Match patterns for TS nodes. These get wrapped to match at word boundaries.
           -- For all filetypes
           -- Note that setting an entry here replaces all other patterns for this entry.
           -- By setting the 'default' entry below, you can control which nodes you want to
@@ -319,7 +320,7 @@ my_plugins.treesitter = {
 my_plugins.misc = {
   {
     "kylechui/nvim-surround",
-    tag = "*", -- Use for stability; omit to use `main` branch for the latest features
+    version = "*", -- Use for stability; omit to use `main` branch for the latest features
     config = function()
       require("nvim-surround").setup({
         -- Configuration here, or leave empty to use defaults
@@ -356,39 +357,28 @@ my_plugins.misc = {
   },
   {
     "pwntester/octo.nvim",
-    requires = {
+    dependencies = {
       "nvim-lua/plenary.nvim",
       "nvim-telescope/telescope.nvim",
-      "kyazdani42/nvim-web-devicons",
     },
     config = function()
       require("octo").setup()
     end,
   },
   "folke/todo-comments.nvim",
-  requires = "nvim-lua/plenary.nvim",
+  dependencies = "nvim-lua/plenary.nvim",
   config = function()
     require("todo-comments").setup({})
   end,
 }
 
-my_plugins.assistants = {
-  {
-    'Exafunction/codeium.vim',
-    config = function()
-      vim.keymap.set('i', '<C-g>', function() return vim.fn['codeium#Accept']() end, { expr = true })
-      vim.keymap.set('i', '<c-;>', function() return vim.fn['codeium#CycleCompletions'](1) end, { expr = true })
-      vim.keymap.set('i', '<c-,>', function() return vim.fn['codeium#CycleCompletions'](-1) end, { expr = true })
-      vim.keymap.set('i', '<c-x>', function() return vim.fn['codeium#Clear']() end, { expr = true })
-    end
-  }
-}
+my_plugins.assistants = {}
 
 my_plugins.notes = {
   {
     'phaazon/mind.nvim',
     branch = 'v2.2',
-    requires = { 'nvim-lua/plenary.nvim' },
+    dependencies = { 'nvim-lua/plenary.nvim' },
     config = function()
       require 'mind'.setup()
     end
@@ -413,8 +403,8 @@ end
 
 lvim.plugins = plugins
 
---[[ 
-  __ _ _   _| |_ ___   ___ _ __ ___   __| |___ 
+--[[
+  __ _ _   _| |_ ___   ___ _ __ ___   __| |___
  / _` | | | | __/ _ \ / __| '_ ` _ \ / _` / __|
 | (_| | |_| | || (_) | (__| | | | | | (_| \__ \
  \__,_|\__,_|\__\___/ \___|_| |_| |_|\__,_|___/ ]]
