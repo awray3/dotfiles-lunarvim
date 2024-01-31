@@ -1,6 +1,6 @@
---[[                               _           
-| |   _   _ _ __   __ _ _ ____   _(_)_ __ ___  
-| |  | | | | '_ \ / _` | '__\ \ / / | '_ ` _ \ 
+--[[                               _
+| |   _   _ _ __   __ _ _ ____   _(_)_ __ ___
+| |  | | | | '_ \ / _` | '__\ \ / / | '_ ` _ \
 | |__| |_| | | | | (_| | |   \ V /| | | | | | |
 |_____\__,_|_| |_|\__,_|_|    \_/ |_|_| |_| |_|]]
 
@@ -28,7 +28,7 @@ lvim.transparent_window = true
 | (_) | |_) | |_| | (_) | | | \__ \
  \___/| .__/ \__|_|\___/|_| |_|___/
       |_| ]]
-vim.opt.foldmethod = "expr" -- folding set to "expr" for treesitter based folding
+vim.opt.foldmethod = "expr"                     -- folding set to "expr" for treesitter based folding
 vim.opt.foldexpr = "nvim_treesitter#foldexpr()" -- set to
 vim.opt.foldlevel = 3
 
@@ -111,7 +111,7 @@ dashboard.section.buttons.val = {
   dash_util.button("e", "  New file", ":ene <BAR> startinsert <CR>"),
   dash_util.button("f", "  Find File", ":Telescope find_files <CR>"),
   dash_util.button("c", "  Configuration", ":e ~/.config/lvim/config.lua <CR>"),
-  dash_util.button("u", "  Update Plugins", ":PackerSync <CR> :PackerCompile <CR>"),
+  dash_util.button("l", "  Lazy", ":Lazy <CR>"),
   dash_util.button("q", "  Quit NVIM", ":qa<CR>"),
 }
 
@@ -137,7 +137,7 @@ lvim.builtin.treesitter.ensure_installed = {
 lvim.builtin.treesitter.ignore_install = { "haskell", "help" }
 lvim.builtin.treesitter.highlight.enable = true
 
---[[ 
+--[[
  _     ____  ____
 | |   / ___||  _ \
 | |   \___ \| |_) |
@@ -146,7 +146,7 @@ lvim.builtin.treesitter.highlight.enable = true
 
 -- -- make sure server will always be installed even if the server is in skipped_servers list
 lvim.lsp.installer.setup.ensure_installed = {
-  "sumneko_lua",
+  "lua_ls",
   "pyright",
 }
 
@@ -188,7 +188,7 @@ formatters.setup({
 -- -- set additional linters
 local linters = require("lvim.lsp.null-ls.linters")
 linters.setup({
-  { command = "flake8", filetypes = { "python" } },
+  { command = "ruff", filetypes = { "python" } },
 })
 
 --   {
@@ -232,7 +232,7 @@ my_plugins.colorschemes = {
       vim.cmd([[
           let g:everforest_transparent_background = 1
           let g:everforest_dim_inactive_windows = 1
-          
+
         ]])
     end,
   },
@@ -258,17 +258,6 @@ my_plugins.core = {
     end,
   },
   {
-    "folke/trouble.nvim",
-    cmd = "TroubleToggle",
-  },
-  {
-    "windwp/nvim-spectre",
-    event = "BufRead",
-    config = function()
-      require("spectre").setup()
-    end,
-  },
-  {
     "max397574/better-escape.nvim",
     config = function()
       require("better_escape").setup({
@@ -290,17 +279,17 @@ my_plugins.core = {
 }
 
 my_plugins.treesitter = {
-  {
-    "p00f/nvim-ts-rainbow",
-  },
+  -- {
+  --   "p00f/nvim-ts-rainbow",
+  -- },
   {
     "romgrk/nvim-treesitter-context",
     config = function()
       require("treesitter-context").setup({
-        enable = true, -- Enable this plugin (Can be enabled/disabled later via commands)
+        enable = true,   -- Enable this plugin (Can be enabled/disabled later via commands)
         throttle = true, -- Throttles plugin updates (may improve performance)
-        max_lines = 0, -- How many lines the window should span. Values <= 0 mean no limit.
-        patterns = { -- Match patterns for TS nodes. These get wrapped to match at word boundaries.
+        max_lines = 0,   -- How many lines the window should span. Values <= 0 mean no limit.
+        patterns = {     -- Match patterns for TS nodes. These get wrapped to match at word boundaries.
           -- For all filetypes
           -- Note that setting an entry here replaces all other patterns for this entry.
           -- By setting the 'default' entry below, you can control which nodes you want to
@@ -319,80 +308,30 @@ my_plugins.treesitter = {
 my_plugins.misc = {
   {
     "kylechui/nvim-surround",
-    tag = "*", -- Use for stability; omit to use `main` branch for the latest features
+    version = "*", -- Use for stability; omit to use `main` branch for the latest features
     config = function()
       require("nvim-surround").setup({
         -- Configuration here, or leave empty to use defaults
       })
     end,
   },
-  {
-    "echasnovski/mini.map",
-    branch = "stable",
-    config = function()
-      require("mini.map").setup()
-      local map = require("mini.map")
-      map.setup({
-        integrations = {
-          map.gen_integration.builtin_search(),
-          map.gen_integration.diagnostic({
-            error = "DiagnosticFloatingError",
-            warn = "DiagnosticFloatingWarn",
-            info = "DiagnosticFloatingInfo",
-            hint = "DiagnosticFloatingHint",
-          }),
-        },
-        symbols = {
-          encode = map.gen_encode_symbols.dot("4x2"),
-        },
-        window = {
-          side = "right",
-          width = 20, -- set to 1 for a pure scrollbar :)
-          winblend = 15,
-          show_integration_count = false,
-        },
-      })
-    end,
-  },
-  {
-    "pwntester/octo.nvim",
-    requires = {
-      "nvim-lua/plenary.nvim",
-      "nvim-telescope/telescope.nvim",
-      "kyazdani42/nvim-web-devicons",
-    },
-    config = function()
-      require("octo").setup()
-    end,
-  },
   "folke/todo-comments.nvim",
-  requires = "nvim-lua/plenary.nvim",
+  dependencies = { "nvim-lua/plenary.nvim" },
   config = function()
     require("todo-comments").setup({})
   end,
 }
 
 my_plugins.assistants = {
-  {
-    'Exafunction/codeium.vim',
-    config = function()
-      vim.keymap.set('i', '<C-g>', function() return vim.fn['codeium#Accept']() end, { expr = true })
-      vim.keymap.set('i', '<c-;>', function() return vim.fn['codeium#CycleCompletions'](1) end, { expr = true })
-      vim.keymap.set('i', '<c-,>', function() return vim.fn['codeium#CycleCompletions'](-1) end, { expr = true })
-      vim.keymap.set('i', '<c-x>', function() return vim.fn['codeium#Clear']() end, { expr = true })
-    end
-  }
-}
-
-my_plugins.notes = {
-  {
-    'phaazon/mind.nvim',
-    branch = 'v2.2',
-    requires = { 'nvim-lua/plenary.nvim' },
-    config = function()
-      require 'mind'.setup()
-    end
-  }
+  -- {
+  --   'Exafunction/codeium.vim',
+  --   config = function()
+  --     vim.keymap.set('i', '<C-g>', function() return vim.fn['codeium#Accept']() end, { expr = true })
+  --     vim.keymap.set('i', '<c-;>', function() return vim.fn['codeium#CycleCompletions'](1) end, { expr = true })
+  --     vim.keymap.set('i', '<c-,>', function() return vim.fn['codeium#CycleCompletions'](-1) end, { expr = true })
+  --     vim.keymap.set('i', '<c-x>', function() return vim.fn['codeium#Clear']() end, { expr = true })
+  --   end
+  -- }
 }
 
 
@@ -413,8 +352,8 @@ end
 
 lvim.plugins = plugins
 
---[[ 
-  __ _ _   _| |_ ___   ___ _ __ ___   __| |___ 
+--[[
+  __ _ _   _| |_ ___   ___ _ __ ___   __| |___
  / _` | | | | __/ _ \ / __| '_ ` _ \ / _` / __|
 | (_| | |_| | || (_) | (__| | | | | | (_| \__ \
  \__,_|\__,_|\__\___/ \___|_| |_| |_|\__,_|___/ ]]
@@ -432,32 +371,4 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
-lvim.autocommands = {
-  {
-    { "BufEnter", "Filetype" },
-    {
-      desc = "Open mini.map and exclude some filetypes",
-      pattern = { "*" },
-      callback = function()
-        local exclude_ft = {
-          "qf",
-          "NvimTree",
-          "toggleterm",
-          "TelescopePrompt",
-          "alpha",
-          "netrw",
-          "Rnvimr",
-          "help"
-        }
-
-        local map = require("mini.map")
-        if vim.tbl_contains(exclude_ft, vim.o.filetype) then
-          vim.b.minimap_disable = true
-          map.close()
-        elseif vim.o.buftype == "" then
-          map.open()
-        end
-      end,
-    },
-  },
-}
+lvim.autocommands = {}
