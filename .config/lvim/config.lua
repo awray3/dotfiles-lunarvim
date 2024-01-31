@@ -3,7 +3,6 @@
 | |  | | | | '_ \ / _` | '__\ \ / / | '_ ` _ \
 | |__| |_| | | | | (_| | |   \ V /| | | | | | |
 |_____\__,_|_| |_|\__,_|_|    \_/ |_|_| |_| |_|]]
-
 --[[
 lvim is the global options object
 
@@ -143,7 +142,6 @@ lvim.builtin.treesitter.highlight.enable = true
 | |   \___ \| |_) |
 | |___ ___) |  __/
 |_____|____/|_| ]]
-
 -- -- make sure server will always be installed even if the server is in skipped_servers list
 lvim.lsp.installer.setup.ensure_installed = {
   "lua_ls",
@@ -211,7 +209,6 @@ linters.setup({
 | |_) | | |_| | (_| | | | | \__ \
 | .__/|_|\__,_|\__, |_|_| |_|___/
 |_|            |___/ ]]
-
 local programming_ftypes = { "bash", "c", "css", "go", "javascript", "json", "lua", "python", "rust", "tsx", "typescript" }
 local my_plugins = {}
 
@@ -249,6 +246,9 @@ my_plugins.core = {
         scroll_limit = 500,
       })
     end,
+  },
+  {
+    'nvim-tree/nvim-web-devicons'
   },
   {
     "ray-x/lsp_signature.nvim",
@@ -289,7 +289,8 @@ my_plugins.treesitter = {
         enable = true,   -- Enable this plugin (Can be enabled/disabled later via commands)
         throttle = true, -- Throttles plugin updates (may improve performance)
         max_lines = 0,   -- How many lines the window should span. Values <= 0 mean no limit.
-        patterns = {     -- Match patterns for TS nodes. These get wrapped to match at word boundaries.
+        patterns = {
+          -- Match patterns for TS nodes. These get wrapped to match at word boundaries.
           -- For all filetypes
           -- Note that setting an entry here replaces all other patterns for this entry.
           -- By setting the 'default' entry below, you can control which nodes you want to
