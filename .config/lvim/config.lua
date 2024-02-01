@@ -130,6 +130,7 @@ lvim.builtin.treesitter.ensure_installed = {
   "java",
   "yaml",
   "markdown",
+  "markdown_inline",
   "julia",
 }
 
@@ -211,6 +212,7 @@ linters.setup({
 |_|            |___/ ]]
 local programming_ftypes = { "bash", "c", "css", "go", "javascript", "json", "lua", "python", "rust", "tsx", "typescript" }
 local my_plugins = {}
+
 
 my_plugins.colorschemes = {
   {
@@ -316,11 +318,71 @@ my_plugins.misc = {
       })
     end,
   },
-  "folke/todo-comments.nvim",
-  dependencies = { "nvim-lua/plenary.nvim" },
-  config = function()
-    require("todo-comments").setup({})
-  end,
+  {
+    "folke/todo-comments.nvim",
+    dependencies = { "nvim-lua/plenary.nvim" },
+    config = function()
+      require("todo-comments").setup({})
+    end,
+  },
+  {
+    "benlubas/molten-nvim",
+    version = "^1.0.0", -- use version <2.0.0 to avoid breaking changes
+    build = ":UpdateRemotePlugins",
+    dependencies = {
+      {
+        "3rd/image.nvim",
+        event = "VeryLazy",
+        dependencies = {
+          { "nvim-treesitter/nvim-treesitter" }
+        },
+        config = function()
+          -- default config
+          require("image").setup({
+            -- backend = "ueberzug",
+            backend = "kitty",
+            integrations = {
+              markdown = {
+                enabled = true,
+                clear_in_insert_mode = false,
+                download_remote_images = true,
+                only_render_image_at_cursor = false,
+                filetypes = { "markdown", "quarto" }, -- markdown extensions (ie. quarto) can go here
+              },
+              neorg = { enabled = false },
+            },
+            max_width = 100,
+            max_height = 12,
+            max_width_window_percentage = math.huge,
+            max_height_window_percentage = math.huge,
+            window_overlap_clear_enabled = true,                                                -- toggles images when windows are overlapped
+            window_overlap_clear_ft_ignore = { "cmp_menu", "cmp_docs", "" },
+            editor_only_render_when_focused = false,                                            -- auto show/hide images when the editor gains/looses focus
+            hijack_file_patterns = { "*.png", "*.jpg", "*.jpeg", "*.gif", "*.webp", "*.html" }, -- render image files as images when opened
+          })
+        end,
+      }
+    },
+    ft = { 'python' },
+    init = function()
+      -- this is an example, not a default. Please see the readme for more configuration options
+      vim.g.molten_output_win_max_height = 12
+      vim.g.molten_auto_open_html_in_browser = true
+      vim.g.molten_show_mimetype_debug = true
+    end,
+    config = function()
+      vim.keymap.set("n", "<localleader>ip", function()
+        local venv = os.getenv("CONDA_DEFAULT_ENV")
+        if venv ~= nil then
+          -- in the form of /home/benlubas/.virtualenvs/VENV_NAME
+          -- venv = string.match(venv, "/.+/(.+)")
+          vim.cmd(("MoltenInit %s"):format(venv))
+        else
+          vim.cmd("MoltenInit python3")
+        end
+      end, { desc = "Initialize Molten for python3", silent = true })
+    end
+  }
 }
 
 my_plugins.assistants = {
@@ -352,6 +414,11 @@ for name, plugin_table in pairs(my_plugins) do
 end
 
 lvim.plugins = plugins
+
+
+-- adds luarocks to the package path
+package.path = package.path .. ";" .. vim.fn.expand("$HOME") .. "/.luarocks/share/lua/5.1/?/init.lua;"
+package.path = package.path .. ";" .. vim.fn.expand("$HOME") .. "/.luarocks/share/lua/5.1/?.lua;"
 
 --[[
   __ _ _   _| |_ ___   ___ _ __ ___   __| |___
